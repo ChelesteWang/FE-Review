@@ -9,3 +9,7 @@
 ## 前端性能优化
 链接:[https://alienzhou.com/projects/fe-performance-journey/](https://alienzhou.com/projects/fe-performance-journey/)
 学习笔记:[performance](./performance.md)
+
+## ES6 练习
+链接:[https://rapides6.herokuapp.com/](https://rapides6.herokuapp.com/)
+学习笔记:[es6](./es6.md)
