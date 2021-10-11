@@ -32,6 +32,10 @@
 链接:[https://bigfrontend.dev/](https://bigfrontend.dev/)
 学习笔记:[bfe](./bfe.md)
 
+## 工程与架构
+链接:[https://github.com/ChelesteWang/lagou](https://github.com/ChelesteWang/lagou)
+学习笔记:[ee](./ee.md)
+
 # 项目相关
 
 复盘 omi 项目
