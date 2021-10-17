@@ -36,6 +36,8 @@
 链接:[https://github.com/ChelesteWang/lagou](https://github.com/ChelesteWang/lagou)
 学习笔记:[ee](./ee.md)
 
+## TypeScript 八股文
+
 # 项目相关
 
 复盘 omi 项目
