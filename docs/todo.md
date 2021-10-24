@@ -36,6 +36,10 @@
 链接:[https://github.com/ChelesteWang/lagou](https://github.com/ChelesteWang/lagou)
 学习笔记:[ee](./ee.md)
 
+## 算法
+链接:[https://mp.weixin.qq.com/s/YpjAzz-qkR3E61ilFKhr8Q](https://mp.weixin.qq.com/s/YpjAzz-qkR3E61ilFKhr8Q)
+学习笔记:[alg](./alg.md)
+
 ## TypeScript 八股文
 
 # 项目相关
