@@ -593,7 +593,7 @@ module.exports = {
 - [webpack简易教程PPT](http://slides.com/diamont1001/webpack)
 - [webpack开发原型demo](https://github.com/diamont1001/webpack-demo)
 
-## Q&A ##
-###Q. HTML里引用JS能自动生成访问后缀吗？比如a.js?2016###
+## Q&A
+Q. HTML里引用JS能自动生成访问后缀吗？比如a.js?2016
 A. 插件html-webpack-plugin
 
