@@ -10,7 +10,6 @@ Virtual DOM Diff的层次（diff算法）
 Virtual Dom有patch算法，根据新旧vnode比较经过优化查找到不同的节点修补、更新。不会暴力的直接覆盖DOM。
 Virtual Dom优势在于直接频繁的操作DOM效率远低于操作JavaScript的效率，使用JavaScript的成本取代DOM成本。
 
-
 ## Vue 与 React 对比
 
 React 相比与 Vue 使用 JSX 即 JavaScript 的扩展语法进行页面描述，React API 也相对少一些，相对 React 也更加灵活，从性能上二者不分伯仲。主要看团队积累和个人熟练度吧。Vue 的开发可能不可避免于查文档。
@@ -20,3 +19,7 @@ React 相比与 Vue 使用 JSX 即 JavaScript 的扩展语法进行页面描述�
 从代码规范到研发工具链，到 CI/CD 平台让开发人员减少更多手动进行重复性的工作。并实现团队内的统一。
 
 https://github.com/mqyqingfeng/frontend-interview-question-and-answer/issues
+
+## vdom diff 算法
+
+## reconcile 的不同
