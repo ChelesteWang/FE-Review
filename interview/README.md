@@ -23,3 +23,5 @@ https://github.com/mqyqingfeng/frontend-interview-question-and-answer/issues
 ## vdom diff 算法
 
 ## reconcile 的不同
+
+## React 渲染流程
