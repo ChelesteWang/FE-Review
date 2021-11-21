@@ -1,0 +1,1097 @@
+## 介绍 
+
+在前端面试中，手撕代码显然是不可避免的，并且占很大的一部分比重。
+
+一般来说，如果代码写的好，即使理论知识答得不够清楚，也能有大概率通过面试。并且其实很多手写往往背后就考察了你对相关理论的认识。
+
+编程题主要分为这几种类型:
+
+```java
+* 算法题
+* 涉及js原理的题以及ajax请求
+* 业务场景题: 实现一个具有某种功能的组件
+* 其他(进阶，对计算机综合知识的考察，考的相对较少)：实现订阅发布者模式；分别用面向对象编程，面向过程编程，函数式编程实现把大象放进冰箱等等
+```
+
+其中前两种类型所占比重最大。  
+算法题建议养成每天刷一道leetcode的习惯，重点刷数据结构(栈，链表，队列，树)，动态规划，DFS，BFS
+
+本文主要涵盖了第二种类型的各种重点手写。
+
+建议优先掌握：
+
+ *  instanceof (考察对原型链的理解)
+ *  new (对创建对象实例过程的理解)
+ *  call&apply&bind (对this指向的理解)
+ *  手写promise (对异步的理解)
+ *  手写原生ajax (对ajax原理和http请求方式的理解，重点是get和post请求的实现)
+ *  事件订阅发布 (高频考点)
+ *  其他：数组，字符串的api的实现，难度相对较低。只要了解数组，字符串的常用方法的用法，现场就能写出来个大概。(ps：笔者认为数组的reduce方法比较难，这块有余力可以单独看一些，即使面试没让你实现reduce，写其他题时用上它也是很加分的)
+
+话不多说，直接开始
+
+## 1. 手写instanceof 
+
+instanceof作用:
+
+判断一个实例是否是其父类或者祖先类型的实例。
+
+instanceof 在查找的过程中会遍历左边变量的原型链，直到找到右边变量的 prototype查找失败，返回 false
+
+```java
+let myInstanceof = (target,origin) => {
+     while(target) {
+         if(target.__proto__===origin.prototype) {
+            return true
+         }
+         target = target.__proto__
+     }
+     return false
+ }
+ let a = [1,2,3]
+ console.log(myInstanceof(a,Array));  // true
+ console.log(myInstanceof(a,Object));  // true
+```
+
+## 2. 实现数组的map方法 
+
+数组的map() 方法会返回一个新的数组，这个新数组中的每个元素对应原数组中的对应位置元素调用一次提供的函数后的返回值。
+
+用法：
+
+```java
+const a = [1, 2, 3, 4];
+const b = array1.map(x => x * 2);
+console.log(b);   // Array [2, 4, 6, 8]
+```
+
+实现前，我们先看一下map方法的参数有哪些  
+![pic_2d7fea7c.png](https://www.liangtengyu.com:9998/images/pic_2d7fea7c.png)  
+map方法有两个参数，一个是操作数组元素的方法fn，一个是this指向(可选)，其中使用fn时可以获取三个参数，实现时记得不要漏掉，这样才算完整实现嘛
+
+原生实现：
+
+```java
+// 实现
+     Array.prototype.myMap = function(fn, thisValue) {
+            let res = []
+            thisValue = thisValue||[]
+            let arr = this
+            for(let i=0; i<arr.length; i++) {
+                res.push(fn.call(thisValue, arr[i],i,arr))   // 参数分别为this指向，当前数组项，当前索引，当前数组
+            }
+            return res
+        }
+        // 使用
+        const a = [1,2,3];
+        const b = a.myMap((a,index)=> {
+                return a+1; 
+            }
+        )
+        console.log(b)   // 输出 [2, 3, 4]
+```
+
+## 3. reduce实现数组的map方法 
+
+利用数组内置的reduce方法实现map方法，考察对reduce原理的掌握
+
+```java
+Array.prototype.myMap = function(fn,thisValue){
+     var res = [];
+     thisValue = thisValue||[];
+     this.reduce(function(pre,cur,index,arr){
+         return res.push(fn.call(thisValue,cur,index,arr));
+     },[]);
+     return res;
+}
+​
+var arr = [2,3,1,5];
+arr.myMap(function(item,index,arr){
+ console.log(item,index,arr);
+})
+```
+
+## 4. 手写数组的reduce方法 
+
+reduce() 方法接收一个函数作为累加器，数组中的每个值（从左到右）开始缩减，最终为一个值，是ES5中新增的又一个数组逐项处理方法
+
+参数：
+
+ *  callback（一个在数组中每一项上调用的函数，接受四个函数：）
+    
+     *  previousValue（上一次调用回调函数时的返回值，或者初始值）
+     *  currentValue（当前正在处理的数组元素）
+     *  currentIndex（当前正在处理的数组元素下标）
+     *  array（调用reduce()方法的数组）
+ *  initialValue（可选的初始值。作为第一次调用回调函数时传给previousValue的值）
+
+```java
+function reduce(arr, cb, initialValue){
+     var num = initValue == undefined? num = arr[0]: initValue;
+     var i = initValue == undefined? 1: 0
+     for (i; i< arr.length; i++){
+        num = cb(num,arr[i],i)
+     }
+     return num
+ }
+ 
+ function fn(result, currentValue, index){
+     return result + currentValue
+ }
+ 
+ var arr = [2,3,4,5]
+ var b = reduce(arr, fn,10) 
+ var c = reduce(arr, fn)
+ console.log(b)   // 24
+```
+
+## 5. 数组扁平化 
+
+数组扁平化就是把多维数组转化成一维数组
+
+1. es6提供的新方法 flat(depth)
+
+```java
+let a = [1,[2,3]]; 
+a.flat(); // [1,2,3] 
+a.flat(1); //[1,2,3]
+```
+
+其实还有一种更简单的办法，无需知道数组的维度，直接将目标数组变成1维数组。 depth的值设置为Infinity。
+
+```java
+let a = [1,[2,3,[4,[5]]]]; 
+a.flat(Infinity); // [1,2,3,4,5]  a是4维数组
+```
+
+2. 利用cancat
+
+```java
+function flatten(arr) {
+     var res = [];
+     for (let i = 0, length = arr.length; i < length; i++) {
+     if (Array.isArray(arr[i])) {
+     res = res.concat(flatten(arr[i])); //concat 并不会改变原数组
+     //res.push(...flatten(arr[i])); //或者用扩展运算符 
+     } else {
+         res.push(arr[i]);
+       }
+     }
+     return res;
+ }
+ let arr1 = [1, 2,[3,1],[2,3,4,[2,3,4]]]
+flatten(arr1); //[1, 2, 3, 1, 2, 3, 4, 2, 3, 4]
+```
+
+补充：指定deep的flat
+
+只需每次递归时将当前deep-1，若大于0，则可以继续展开
+
+```java
+function flat(arr, deep) {
+        let res = []
+        for(let i in arr) {
+            if(Array.isArray(arr[i])&&deep) {
+                res = res.concat(flat(arr[i],deep-1))
+            } else {
+                res.push(arr[i])
+            }
+        }
+        return res
+    }
+    console.log(flat([12,[1,2,3],3,[2,4,[4,[3,4],2]]],1));
+```
+
+## 6. 函数柯里化 
+
+用的这里的方法 [https://juejin.im/post/684490...][https_juejin.im_post_684490...]
+
+柯里化的定义：接收一部分参数，返回一个函数接收剩余参数，接收足够参数后，执行原函数。
+
+当柯里化函数接收到足够参数后，就会执行原函数，如何去确定何时达到足够的参数呢？
+
+有两种思路：
+
+1.  通过函数的 length 属性，获取函数的形参个数，形参的个数就是所需的参数个数
+2.  在调用柯里化工具函数时，手动指定所需的参数个数
+
+将这两点结合一下，实现一个简单 curry 函数：
+
+```java
+/**
+ * 将函数柯里化
+ * @param fn    待柯里化的原函数
+ * @param len   所需的参数个数，默认为原函数的形参个数
+ */
+function curry(fn,len = fn.length) {
+ return _curry.call(this,fn,len)
+}
+​
+/**
+ * 中转函数
+ * @param fn    待柯里化的原函数
+ * @param len   所需的参数个数
+ * @param args  已接收的参数列表
+ */
+function _curry(fn,len,...args) {
+    return function (...params) {
+         let _args = [...args,...params];
+         if(_args.length >= len){
+             return fn.apply(this,_args);
+         }else{
+          return _curry.call(this,fn,len,..._args)
+         }
+    }
+}
+```
+
+我们来验证一下：
+
+```java
+let _fn = curry(function(a,b,c,d,e){
+ console.log(a,b,c,d,e)
+});
+​
+_fn(1,2,3,4,5);     // print: 1,2,3,4,5
+_fn(1)(2)(3,4,5);   // print: 1,2,3,4,5
+_fn(1,2)(3,4)(5);   // print: 1,2,3,4,5
+_fn(1)(2)(3)(4)(5); // print: 1,2,3,4,5
+```
+
+我们常用的工具库 lodash 也提供了 curry 方法，并且增加了非常好玩的 placeholder 功能，通过占位符的方式来改变传入参数的顺序。
+
+比如说，我们传入一个占位符，本次调用传递的参数略过占位符， 占位符所在的位置由下次调用的参数来填充，比如这样：
+
+直接看一下官网的例子：
+
+![pic_efb44e64.png](https://www.liangtengyu.com:9998/images/pic_efb44e64.png)
+
+接下来我们来思考，如何实现占位符的功能。
+
+对于 lodash 的 curry 函数来说，curry 函数挂载在 lodash 对象上，所以将 lodash 对象当做默认占位符来使用。
+
+而我们的自己实现的 curry 函数，本身并没有挂载在任何对象上，所以将 curry 函数当做默认占位符
+
+使用占位符，目的是改变参数传递的顺序，所以在 curry 函数实现中，每次需要记录是否使用了占位符，并且记录占位符所代表的参数位置。
+
+直接上代码：
+
+```java
+/**
+ * @param  fn           待柯里化的函数
+ * @param  length       需要的参数个数，默认为函数的形参个数
+ * @param  holder       占位符，默认当前柯里化函数
+ * @return {Function}   柯里化后的函数
+ */
+function curry(fn,length = fn.length,holder = curry){
+ return _curry.call(this,fn,length,holder,[],[])
+}
+/**
+ * 中转函数
+ * @param fn            柯里化的原函数
+ * @param length        原函数需要的参数个数
+ * @param holder        接收的占位符
+ * @param args          已接收的参数列表
+ * @param holders       已接收的占位符位置列表
+ * @return {Function}   继续柯里化的函数 或 最终结果
+ */
+function _curry(fn,length,holder,args,holders){
+ return function(..._args){
+ //将参数复制一份，避免多次操作同一函数导致参数混乱
+ let params = args.slice();
+ //将占位符位置列表复制一份，新增加的占位符增加至此
+ let _holders = holders.slice();
+ //循环入参，追加参数 或 替换占位符
+ _args.forEach((arg,i)=>{
+ //真实参数 之前存在占位符 将占位符替换为真实参数
+ if (arg !== holder && holders.length) {
+     let index = holders.shift();
+     _holders.splice(_holders.indexOf(index),1);
+     params[index] = arg;
+ }
+ //真实参数 之前不存在占位符 将参数追加到参数列表中
+ else if(arg !== holder && !holders.length){
+     params.push(arg);
+ }
+ //传入的是占位符,之前不存在占位符 记录占位符的位置
+ else if(arg === holder && !holders.length){
+     params.push(arg);
+     _holders.push(params.length - 1);
+ }
+ //传入的是占位符,之前存在占位符 删除原占位符位置
+ else if(arg === holder && holders.length){
+    holders.shift();
+ }
+ });
+ // params 中前 length 条记录中不包含占位符，执行函数
+ if(params.length >= length && params.slice(0,length).every(i=>i!==holder)){
+ return fn.apply(this,params);
+ }else{
+ return _curry.call(this,fn,length,holder,params,_holders)
+ }
+ }
+}
+```
+
+验证一下：；
+
+```java
+let fn = function(a, b, c, d, e) {
+ console.log([a, b, c, d, e]);
+}
+​
+let _ = {}; // 定义占位符
+let _fn = curry(fn,5,_);  // 将函数柯里化，指定所需的参数个数，指定所需的占位符
+​
+_fn(1, 2, 3, 4, 5);                 // print: 1,2,3,4,5
+_fn(_, 2, 3, 4, 5)(1);              // print: 1,2,3,4,5
+_fn(1, _, 3, 4, 5)(2);              // print: 1,2,3,4,5
+_fn(1, _, 3)(_, 4,_)(2)(5);         // print: 1,2,3,4,5
+_fn(1, _, _, 4)(_, 3)(2)(5);        // print: 1,2,3,4,5
+_fn(_, 2)(_, _, 4)(1)(3)(5);        // print: 1,2,3,4,5
+```
+
+至此，我们已经完整实现了一个 curry 函数~~
+
+## 7. 浅拷贝和深拷贝的实现 
+
+深拷贝和浅拷贝是只针对Object和Array这样的引用数据类型的。
+
+浅拷贝和深拷贝的区别：
+
+浅拷贝：创建一个新对象，这个对象有着原始对象属性值的一份精确拷贝。如果属性是基本类型，拷贝的就是基本类型的值，如果属性是引用类型，拷贝的就是内存地址，如果其中一个对象改变了引用类型的属性，就会影响到另一个对象。
+
+深拷贝：将一个对象从内存中完整的复制一份出来,从堆内存中开辟一个新区域存放。这样更改拷贝值就不影响旧的对象
+
+#### 浅拷贝实现： 
+
+方法一：
+
+```java
+function shallowCopy(target, origin){
+    for(let item in origin) target[item] = origin[item];
+    return target;
+}
+```
+
+其他方法(内置api)：
+
+1.  Object.assign
+
+```java
+var obj={a:1,b:[1,2,3],c:function(){console.log('i am c')}}
+var tar={};
+Object.assign(tar,obj);
+```
+
+当然这个方法只适合于对象类型，如果是数组可以使用slice和concat方法
+
+1.  Array.prototype.slice
+
+```java
+var arr=[1,2,[3,4]];
+var newArr=arr.slice(0);
+```
+
+1.  Array.prototype.concat
+
+```java
+var arr=[1,2,[3,4]];
+var newArr=arr.concat();
+```
+
+测试同上(assign用对象测试、slice concat用数组测试)，结合浅拷贝深拷贝的概念来理解效果更佳
+
+#### 深拷贝实现： 
+
+方法一：
+
+转为json格式再解析  
+`const a = JSON.parse(JSON.stringify(b))`
+
+方法二：
+
+```java
+// 实现深拷贝  递归
+function deepCopy(newObj,oldObj){
+     for(var k in oldObj){
+         let item=oldObj[k]
+         // 判断是数组、对象、简单类型？
+         if(item instanceof Array){
+             newObj[k]=[]
+             deepCopy(newObj[k],item)
+         }else if(item instanceof Object){
+             newObj[k]={}
+             deepCopy(newObj[k],item)
+         }else{  //简单数据类型，直接赋值
+             newObj[k]=item
+         }
+     }
+}
+```
+
+## 8. 手写call, apply, bind 
+
+手写call
+
+```java
+Function.prototype.myCall=function(context=window){  // 函数的方法，所以写在Fuction原型对象上
+ if(typeof this !=="function"){   // 这里if其实没必要，会自动抛出错误
+    throw new Error("不是函数")
+ }
+ const obj=context||window   //这里可用ES6方法，为参数添加默认值，js严格模式全局作用域this为undefined
+ obj.fn=this      //this为调用的上下文,this此处为函数，将这个函数作为obj的方法
+ const arg=[...arguments].slice(1)   //第一个为obj所以删除,伪数组转为数组
+ res=obj.fn(...arg)
+ delete obj.fn   // 不删除会导致context属性越来越多
+ return res
+}
+```
+
+```java
+//用法：f.call(obj,arg1)
+function f(a,b){
+ console.log(a+b)
+ console.log(this.name)
+}
+let obj={
+ name:1
+}
+f.myCall(obj,1,2) //否则this指向window
+
+obj.greet.call({name: 'Spike'}) //打出来的是 Spike
+```
+
+手写apply(arguments\[this, \[参数1，参数2.....\] \])
+
+```java
+Function.prototype.myApply=function(context){  // 箭头函数从不具有参数对象！！！！！这里不能写成箭头函数
+ let obj=context||window
+ obj.fn=this
+ const arg=arguments[1]||[]    //若有参数，得到的是数组
+ let res=obj.fn(...arg)
+ delete obj.fn
+ return res
+} 
+function f(a,b){
+ console.log(a,b)
+ console.log(this.name)
+}
+let obj={
+ name:'张三'
+}
+f.myApply(obj,[1,2])  //arguments[1]
+```
+
+手写bind
+
+```java
+this.value = 2
+var foo = {
+ value: 1
+};
+var bar = function(name, age, school){
+ console.log(name) // 'An'
+ console.log(age) // 22
+ console.log(school) // '家里蹲大学'
+}
+var result = bar.bind(foo, 'An') //预置了部分参数'An'
+result(22, '家里蹲大学') //这个参数会和预置的参数合并到一起放入bar中
+```
+
+简单版本
+
+```java
+Function.prototype.bind = function(context, ...outerArgs) {
+ var fn = this;
+ return function(...innerArgs) {   //返回了一个函数，...rest为实际调用时传入的参数
+ return fn.apply(context,[...outerArgs, ...innerArgs]);  //返回改变了this的函数，
+ //参数合并
+ }
+}
+```
+
+new失败的原因：
+
+例：
+
+```java
+// 声明一个上下文
+let thovino = {
+ name: 'thovino'
+}
+​
+// 声明一个构造函数
+let eat = function (food) {
+ this.food = food
+ console.log(`${this.name} eat ${this.food}`)
+}
+eat.prototype.sayFuncName = function () {
+ console.log('func name : eat')
+}
+​
+// bind一下
+let thovinoEat = eat.bind(thovino)
+let instance = new thovinoEat('orange')  //实际上orange放到了thovino里面
+console.log('instance:', instance) // {}
+```
+
+生成的实例是个空对象
+
+在`new`操作符执行时，我们的`thovinoEat`函数可以看作是这样：
+
+```java
+function thovinoEat (...innerArgs) {
+ eat.call(thovino, ...outerArgs, ...innerArgs)
+}
+```
+
+在new操作符进行到第三步的操作`thovinoEat.call(obj, ...args)`时，这里的`obj`是new操作符自己创建的那个简单空对象`{}`，但它其实并没有替换掉`thovinoEat`函数内部的那个上下文对象`thovino`。这已经超出了`call`的能力范围，因为这个时候要替换的已经不是`thovinoEat`函数内部的`this`指向，而应该是`thovino`对象。
+
+换句话说，我们希望的是`new`操作符将`eat`内的`this`指向操作符自己创建的那个空对象。但是实际上指向了`thovino`，`new`操作符的第三步动作并没有成功！
+
+可new可继承版本
+
+```java
+Function.prototype.bind = function (context, ...outerArgs) {
+ let that = this;
+​
+function res (...innerArgs) {
+     if (this instanceof res) {
+         // new操作符执行时
+         // 这里的this在new操作符第三步操作时，会指向new自身创建的那个简单空对象{}
+         that.call(this, ...outerArgs, ...innerArgs)
+     } else {
+         // 普通bind
+         that.call(context, ...outerArgs, ...innerArgs)
+     }
+     }
+     res.prototype = this.prototype //！！！
+     return res
+}
+```
+
+## 9. 手动实现new 
+
+new的过程文字描述：
+
+1.  创建一个空对象 obj;
+2.  将空对象的隐式原型（proto）指向构造函数的prototype。
+3.  使用 call 改变 this 的指向
+4.  如果无返回值或者返回一个非对象值，则将 obj 返回作为新对象；如果返回值是一个新对象的话那么直接直接返回该对象。
+
+```java
+function Person(name,age){
+ this.name=name
+ this.age=age
+}
+Person.prototype.sayHi=function(){
+ console.log('Hi！我是'+this.name)
+}
+let p1=new Person('张三',18)
+​
+////手动实现new
+function create(){
+ let obj={}
+ //获取构造函数
+ let fn=[].shift.call(arguments)  //将arguments对象提出来转化为数组，arguments并不是数组而是对象    ！！！这种方法删除了arguments数组的第一个元素，！！这里的空数组里面填不填元素都没关系，不影响arguments的结果      或者let arg = [].slice.call(arguments,1)
+ obj.__proto__=fn.prototype
+ let res=fn.apply(obj,arguments)    //改变this指向，为实例添加方法和属性
+ //确保返回的是一个对象(万一fn不是构造函数)
+ return typeof res==='object'?res:obj
+}
+​
+let p2=create(Person,'李四',19)
+p2.sayHi()
+```
+
+细节：
+
+```java
+[].shift.call(arguments)  也可写成：
+ let arg=[...arguments]
+ let fn=arg.shift()  //使得arguments能调用数组方法,第一个参数为构造函数
+ obj.__proto__=fn.prototype
+ //改变this指向，为实例添加方法和属性
+ let res=fn.apply(obj,arg)
+```
+
+## 10. 手写promise(常考promise.all, promise.race) 
+
+```java
+// Promise/A+ 规范规定的三种状态
+const STATUS = {
+ PENDING: 'pending',
+ FULFILLED: 'fulfilled',
+ REJECTED: 'rejected'
+}
+​
+class MyPromise {
+ // 构造函数接收一个执行回调
+ constructor(executor) {
+     this._status = STATUS.PENDING // Promise初始状态
+     this._value = undefined // then回调的值
+     this._resolveQueue = [] // resolve时触发的成功队列
+     this._rejectQueue = [] // reject时触发的失败队列
+    ​
+ // 使用箭头函数固定this（resolve函数在executor中触发，不然找不到this）
+ const resolve = value => {
+     const run = () => {
+         // Promise/A+ 规范规定的Promise状态只能从pending触发，变成fulfilled
+         if (this._status === STATUS.PENDING) {
+             this._status = STATUS.FULFILLED // 更改状态
+             this._value = value // 储存当前值，用于then回调
+            ​
+             // 执行resolve回调
+             while (this._resolveQueue.length) {
+                 const callback = this._resolveQueue.shift()
+                 callback(value)
+             }
+         }
+     }
+     //把resolve执行回调的操作封装成一个函数,放进setTimeout里,以实现promise异步调用的特性（规范上是微任务，这里是宏任务）
+     setTimeout(run)
+ }
+​
+ // 同 resolve
+ const reject = value => {
+     const run = () => {
+         if (this._status === STATUS.PENDING) {
+         this._status = STATUS.REJECTED
+         this._value = value
+        ​
+         while (this._rejectQueue.length) {
+             const callback = this._rejectQueue.shift()
+             callback(value)
+         }
+     }
+ }
+     setTimeout(run)
+ }
+
+     // new Promise()时立即执行executor,并传入resolve和reject
+     executor(resolve, reject)
+ }
+​
+ // then方法,接收一个成功的回调和一个失败的回调
+ function then(onFulfilled, onRejected) {
+  // 根据规范，如果then的参数不是function，则忽略它, 让值继续往下传递，链式调用继续往下执行
+  typeof onFulfilled !== 'function' ? onFulfilled = value => value : null
+  typeof onRejected !== 'function' ? onRejected = error => error : null
+
+  // then 返回一个新的promise
+  return new MyPromise((resolve, reject) => {
+    const resolveFn = value => {
+      try {
+        const x = onFulfilled(value)
+        // 分类讨论返回值,如果是Promise,那么等待Promise状态变更,否则直接resolve
+        x instanceof MyPromise ? x.then(resolve, reject) : resolve(x)
+      } catch (error) {
+        reject(error)
+      }
+    }
+  }
+}
+​
+  const rejectFn = error => {
+      try {
+        const x = onRejected(error)
+        x instanceof MyPromise ? x.then(resolve, reject) : resolve(x)
+      } catch (error) {
+        reject(error)
+      }
+    }
+
+    switch (this._status) {
+      case STATUS.PENDING:
+        this._resolveQueue.push(resolveFn)
+        this._rejectQueue.push(rejectFn)
+        break;
+      case STATUS.FULFILLED:
+        resolveFn(this._value)
+        break;
+      case STATUS.REJECTED:
+        rejectFn(this._value)
+        break;
+    }
+ })
+ }
+ catch (rejectFn) {
+  return this.then(undefined, rejectFn)
+}
+// promise.finally方法
+finally(callback) {
+  return this.then(value => MyPromise.resolve(callback()).then(() => value), error => {
+    MyPromise.resolve(callback()).then(() => error)
+  })
+}
+
+ // 静态resolve方法
+ static resolve(value) {
+      return value instanceof MyPromise ? value : new MyPromise(resolve => resolve(value))
+  }
+
+ // 静态reject方法
+ static reject(error) {
+      return new MyPromise((resolve, reject) => reject(error))
+    }
+
+ // 静态all方法
+ static all(promiseArr) {
+      let count = 0
+      let result = []
+      return new MyPromise((resolve, reject) =>       {
+        if (!promiseArr.length) {
+          return resolve(result)
+        }
+        promiseArr.forEach((p, i) => {
+          MyPromise.resolve(p).then(value => {
+            count++
+            result[i] = value
+            if (count === promiseArr.length) {
+              resolve(result)
+            }
+          }, error => {
+            reject(error)
+          })
+        })
+      })
+    }
+
+ // 静态race方法
+ static race(promiseArr) {
+      return new MyPromise((resolve, reject) => {
+        promiseArr.forEach(p => {
+          MyPromise.resolve(p).then(value => {
+            resolve(value)
+          }, error => {
+            reject(error)
+          })
+        })
+      })
+    }
+}
+```
+
+## 11. 手写原生AJAX 
+
+步骤
+
+1.  创建 XMLHttpRequest 实例
+2.  发出 HTTP 请求
+3.  服务器返回 XML 格式的字符串
+4.  JS 解析 XML，并更新局部页面
+
+不过随着历史进程的推进，XML 已经被淘汰，取而代之的是 [JSON][]。
+
+了解了属性和方法之后，根据 AJAX 的步骤，手写最简单的 GET 请求。
+
+version 1.0：
+
+```java
+myButton.addEventListener('click', function () {
+  ajax()
+})
+
+function ajax() {
+  let xhr = new XMLHttpRequest() //实例化，以调用方法
+  xhr.open('get', 'https://www.google.com')  //参数2，url。参数三：异步
+  xhr.onreadystatechange = () => {  //每当 readyState 属性改变时，就会调用该函数。
+    if (xhr.readyState === 4) {  //XMLHttpRequest 代理当前所处状态。
+      if (xhr.status >= 200 && xhr.status < 300) {  //200-300请求成功
+        let string = request.responseText
+        //JSON.parse() 方法用来解析JSON字符串，构造由字符串描述的JavaScript值或对象
+        let object = JSON.parse(string)
+      }
+    }
+  }
+  request.send() //用于实际发出 HTTP 请求。不带参数为GET请求
+}
+```
+
+promise实现
+
+```java
+function ajax(url) {
+  const p = new Promise((resolve, reject) => {
+    let xhr = new XMLHttpRequest()
+    xhr.open('get', url)
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == 4) {
+        if (xhr.status >= 200 && xhr.status <= 300) {
+          resolve(JSON.parse(xhr.responseText))
+        } else {
+          reject('请求出错')
+        }
+      }
+    }
+    xhr.send()  //发送hppt请求
+  })
+  return p
+}
+let url = '/data.json'
+ajax(url).then(res => console.log(res))
+  .catch(reason => console.log(reason))
+```
+
+## 12. 手写节流防抖函数 
+
+```java
+函数节流与函数防抖都是为了限制函数的执行频次，是一种性能优化的方案，比如应用于window对象的resize、scroll事件，拖拽时的mousemove事件，文字输入、自动完成的keyup事件。
+```
+
+节流：连续触发事件但是在 n 秒中只执行一次函数
+
+例:（连续不断动都需要调用时用，设一时间间隔），像dom的拖拽，如果用消抖的话，就会出现卡顿的感觉，因为只在停止的时候执行了一次，这个时候就应该用节流，在一定时间内多次执行，会流畅很多。
+
+防抖：指触发事件后在 n 秒内函数只能执行一次，如果在 n 秒内又触发了事件，则会重新计算函数执行时间。
+
+例:（连续不断触发时不调用，触发完后过一段时间调用），像仿百度搜索，就应该用防抖，当我连续不断输入时，不会发送请求；当我一段时间内不输入了，才会发送一次请求；如果小于这段时间继续输入的话，时间会重新计算，也不会发送请求。
+
+防抖的实现：
+
+```java
+function debounce(fn, delay) {
+     if(typeof fn!=='function') {
+        throw new TypeError('fn不是函数')
+     }
+     let timer; // 维护一个 timer
+     return function () {
+         var _this = this; // 取debounce执行作用域的this(原函数挂载到的对象)
+         var args = arguments;
+         if (timer) {
+            clearTimeout(timer);
+         }
+         timer = setTimeout(function () {
+            fn.apply(_this, args); // 用apply指向调用debounce的对象，相当于_this.fn(args);
+         }, delay);
+     };
+}
+
+// 调用​
+input1.addEventListener('keyup', debounce(() => {
+ console.log(input1.value)
+}), 600)
+```
+
+节流的实现：
+
+```java
+function throttle(fn, delay) {
+  let timer;
+  return function () {
+    var _this = this;
+    var args = arguments;
+    if (timer) {
+      return;
+    }
+    timer = setTimeout(function () {
+      fn.apply(_this, args); // 这里args接收的是外边返回的函数的参数，不能用arguments
+      // fn.apply(_this, arguments); 需要注意：Chrome 14 以及 Internet Explorer 9 仍然不接受类数组对象。如果传入类数组对象，它们会抛出异常。
+      timer = null; // 在delay后执行完fn之后清空timer，此时timer为假，throttle触发可以进入计时器
+    }, delay)
+  }
+}
+
+div1.addEventListener('drag', throttle((e) => {
+  console.log(e.offsetX, e.offsetY)
+}, 100))
+```
+
+## 13. 手写Promise加载图片 
+
+```java
+function getData(url) {
+  return new Promise((resolve, reject) => {
+    $.ajax({
+      url,
+      success(data) {
+        resolve(data)
+      },
+      error(err) {
+        reject(err)
+      }
+    })
+  })
+}
+const url1 = './data1.json'
+const url2 = './data2.json'
+const url3 = './data3.json'
+getData(url1).then(data1 => {
+  console.log(data1)
+  return getData(url2)
+}).then(data2 => {
+  console.log(data2)
+  return getData(url3)
+}).then(data3 =>
+  console.log(data3)
+).catch(err =>
+  console.error(err)
+)
+```
+
+## 14. 函数实现一秒钟输出一个数 
+
+(!!!这个题这两天字节校招面试被问到了，问var打印的什么，改为let为什么可以？  
+有没有其他方法实现？我自己博客里都写了不用let的写法第二种方法,居然给忘了~~~白学了)
+
+ES6：用let块级作用域的原理实现
+
+```java
+for(let i=0;i<=10;i++){   //用var打印的都是11
+ setTimeout(()=>{
+    console.log(i);
+ },1000*i)
+}
+```
+
+不用let的写法： 原理是用立即执行函数创造一个块级作用域
+
+```java
+for(var i = 1; i <= 10; i++){
+    (function (i) {
+        setTimeout(function () {
+            console.log(i);
+        }, 1000 * i)
+    })(i);
+}
+```
+
+## 15. 创建10个标签，点击的时候弹出来对应的序号？ 
+
+```java
+var a
+for(let i=0;i<10;i++){
+ a=document.createElement('a')
+ a.innerHTML=i+'<br>'
+ a.addEventListener('click',function(e){
+     console.log(this)  //this为当前点击的<a>
+     e.preventDefault()  //如果调用这个方法，默认事件行为将不再触发。
+     //例如，在执行这个方法后，如果点击一个链接（a标签），浏览器不会跳转到新的 URL 去了。我们可以用 event.isDefaultPrevented() 来确定这个方法是否(在那个事件对象上)被调用过了。
+     alert(i)
+ })
+ const d=document.querySelector('div')
+ d.appendChild(a)  //append向一个已存在的元素追加该元素。
+}
+```
+
+## 16. 实现事件订阅发布(eventBus) 
+
+实现EventBus类，有 on off once trigger功能，分别对应绑定事件监听器，解绑，执行一次后解除事件绑定，触发事件监听器。 这个题目面字节和快手都问到了，最近忙，答案会在后续更新
+
+```java
+class EventBus {
+    on(eventName, listener) {}
+    off(eventName, listener) {}
+    once(eventName, listener) {}
+    trigger(eventName) {}
+}
+
+const e = new EventBus();
+// fn1 fn2
+e.on('e1', fn1)
+e.once('e1', fn2)
+e.trigger('e1') // fn1() fn2()
+e.trigger('e1') // fn1()
+e.off('e1', fn1)
+e.trigger('e1') // null
+```
+
+实现：
+
+```java
+//声明类
+      class EventBus {
+        constructor() {
+          this.eventList = {} //创建对象收集事件
+        }
+        //发布事件
+        $on(eventName, fn) {
+          //判断是否发布过事件名称? 添加发布 : 创建并添加发布
+          this.eventList[eventName]
+            ? this.eventList[eventName].push(fn)
+            : (this.eventList[eventName] = [fn])
+        }
+        //订阅事件
+        $emit(eventName) {
+          if (!eventName) throw new Error('请传入事件名')
+          //获取订阅传参
+          const data = [...arguments].slice(1)
+          if (this.eventList[eventName]) {
+            this.eventList[eventName].forEach((i) => {
+              try {
+                i(...data) //轮询事件
+              } catch (e) {
+                console.error(e + 'eventName:' + eventName) //收集执行时的报错
+              }
+            })
+          }
+        }
+        //执行一次
+        $once(eventName, fn) {
+          const _this = this
+          function onceHandle() {
+            fn.apply(null, arguments)
+            _this.$off(eventName, onceHandle) //执行成功后取消监听
+          }
+          this.$on(eventName, onceHandle)
+        }
+        //取消订阅
+        $off(eventName, fn) {
+          //不传入参数时取消全部订阅
+          if (!arguments.length) {
+            return (this.eventList = {})
+          }
+          //eventName传入的是数组时,取消多个订阅
+          if (Array.isArray(eventName)) {
+            return eventName.forEach((event) => {
+              this.$off(event, fn)
+            })
+          }
+          //不传入fn时取消事件名下的所有队列
+          if (arguments.length === 1 || !fn) {
+            this.eventList[eventName] = []
+          }
+          //取消事件名下的fn
+          this.eventList[eventName] = this.eventList[eventName].filter(
+            (f) => f !== fn
+          )
+        }
+      }
+      const event = new EventBus()
+
+      let b = function (v1, v2, v3) {
+        console.log('b', v1, v2, v3)
+      }
+      let a = function () {
+        console.log('a')
+      }
+      event.$once('test', a)
+      event.$on('test', b)
+      event.$emit('test', 1, 2, 3, 45, 123)
+
+      event.$off(['test'], b)
+
+      event.$emit('test', 1, 2, 3, 45, 123)
+```
+
+参考：
+
+数组扁平化 [https://juejin.im/post/5c971ee16fb9a070ce31b64e\#heading-3][https_juejin.im_post_5c971ee16fb9a070ce31b64e_heading-3]
+
+函数柯里化 [https://juejin.im/post/6844903882208837645][https_juejin.im_post_6844903882208837645]
+
+节流防抖 [https://www.jianshu.com/p/c8b...][https_www.jianshu.com_p_c8b...]
+
+事件订阅发布实现 [https://heznb.com/archives/js...][https_heznb.com_archives_js...]
+
+浅拷贝深拷贝 [https://segmentfault.com/a/11...][https_segmentfault.com_a_11...]
+
+
+[https_juejin.im_post_684490...]: https://link.segmentfault.com/?enc=p8SlGj6jQbbzH8Hh5Wk7UA%3D%3D.%2FcLyC2S2%2FTxPxNvUI9Ab8XVuQ4W3AEuZWtOC%2FcwZwCYaZPoAWBEY3yuzhS7wO8QE
+[JSON]: https://link.segmentfault.com/?enc=W8pIgheJiIjRk3JCHiJasQ%3D%3D.twDTSOe6%2Bcuhxrmv6YwZdBftb6Tt8gGlFwD3%2BfIKq7%2FtKyYA6kaAhCEGShJij2VF
+[https_juejin.im_post_5c971ee16fb9a070ce31b64e_heading-3]: https://link.segmentfault.com/?enc=UGoVlDGVv5Tv9e17Rkyp6w%3D%3D.v9IVw3spttZBSviYrZSuij0OWACrdIG5A%2BbqzZ18U2gM9AJVom3DAut16TG13BhyOP9E1dUV3jW%2FyCAEZR%2FUEw%3D%3D
+[https_juejin.im_post_6844903882208837645]: https://link.segmentfault.com/?enc=dC%2Fqqz6qBbmpTYXsIaK7yg%3D%3D.QoByEtiN0mXE499U0WTdxQ%2Fakc18ktp%2FTFiV4m1jVNUH25jjuZkl6mjNjqmcm5Yv
+[https_www.jianshu.com_p_c8b...]: https://link.segmentfault.com/?enc=SlUXZXQrW5rt2re0grOb2Q%3D%3D.GL1IedL4iHg368Nv5Ix%2B7OJErZ9qaDeH7ezHodx6%2BglXCXqaLs56EnGm4lBilh9h
+[https_heznb.com_archives_js...]: https://link.segmentfault.com/?enc=pJVgMgsuNX4j2JiEECjl9w%3D%3D.sHk2ko8JM0IjT3S%2Fb1zo6Ix1YwEerAB8sgJ3f%2FP2H675Nf4gWQrNLE3vxCUtvLAwcjjBaDE7%2FQEx4Mb3%2BFSWQeA9TEfC7yBcCobvHonRKrhVpJcFUadbPgVJJYdih56S
+[https_segmentfault.com_a_11...]: https://segmentfault.com/a/1190000014234116
