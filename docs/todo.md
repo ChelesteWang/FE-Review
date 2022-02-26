@@ -22,6 +22,7 @@
 
 ## 面试笔记总结
 链接:[https://github.com/CavsZhouyou/Front-End-Interview-Notebook](https://github.com/CavsZhouyou/Front-End-Interview-Notebook)
+[https://vue3js.cn/interview/](https://vue3js.cn/interview/)
 学习笔记:[fe](./fe.md)
 
 ## 反向面试
