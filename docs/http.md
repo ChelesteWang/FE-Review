@@ -69,3 +69,9 @@ HTTPS 主要分为两个阶段证书验证和数据传输阶段
 
 总结：
 https 使用非对称加密防止用于传输的对称秘钥被捕获，使用信息摘要算法保证证书没有篡改
+
+### http 1.1 & 2.0 & 3,0
+
+http1.1 默认开启长连接，新的缓存头部（Entity tag，If-Unmodified-Since, If-Match, If-None-Match），range 读取断点续传，支持 host 域信息（物理主机中的虚拟主机的域名）
+http2.0 二进制传输，复用 TCP 链接多路复用，头部压缩，服务推送
+http3.0 QUIC 协议基于 UDP 
