@@ -43,7 +43,10 @@ btn.addEventListener('click',function(){},false)
 事件冒泡与事件委托
 
 target ：e.target 当前选中元素
+
 currentTarget e.currentTarget 当前事件绑定元素
+
+通过给父级对象绑定事件，根据 target 来进行选中触发逻辑
 
 ## 网络常见问题
 TCP/UDP HTTP1.0/2.0/3.0 HTTP/HTTPS
