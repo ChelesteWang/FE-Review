@@ -28,5 +28,21 @@ https://github.com/mqyqingfeng/frontend-interview-question-and-answer/issues
 
 ## 事件系统
 
+事件冒泡：从内到外 1 2 3 
+事件捕获：从外到内 3 2 1
+
+DOM0 DOM1:事件冒泡到 window 为止
+
+DOM2:新增绑定机制 addEventListener 第三个参数为 false 是为冒泡阶段，true 为捕获阶段
+
+```
+btn.onclick = function(){}
+btn.addEventListener('click',function(){},false)
+```
+
+事件冒泡与事件委托
+
+target 与 currentTarget
+
 ## 网络常见问题
 TCP/UDP HTTP1.0/2.0/3.0 HTTP/HTTPS
