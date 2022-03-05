@@ -30,7 +30,23 @@ https://github.com/mqyqingfeng/frontend-interview-question-and-answer/issues
 
 DOM 级别
 
+DOM2级处理事件是在DOM0级处理事件的基础上再添加了一些处理程序。
 
+可以同时绑定多个事件处理函数。
+定义了 addEventListener 和 removeEventListener 两个方法。
+
+DOM3级处理事件是在DOM2级处理事件的基础上再添加了很多事件类型。
+
+UI事件，当用户与页面上的元素交互时触发，如：load、scroll
+焦点事件，当元素获得或失去焦点时触发，如：blur、focus
+鼠标事件，当用户通过鼠标在页面执行操作时触发如：dbclick、mouseup
+滚轮事件，当使用鼠标滚轮或类似设备时触发，如：mousewheel
+文本事件，当在文档中输入文本时触发，如：textInput
+键盘事件，当用户通过键盘在页面上执行操作时触发，如：keydown、keypress
+合成事件，当为IME（输入法编辑器）输入字符时触发，如：compositionstart
+变动事件，当底层DOM结构发生变化时触发，如：DOMsubtreeModified
+
+同时DOM3级事件也允许使用者自定义一些事件。
 
 事件冒泡：从内到外 1 2 3 
 事件捕获：从外到内 3 2 1
