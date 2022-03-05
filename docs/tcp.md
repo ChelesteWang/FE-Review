@@ -38,7 +38,7 @@ https://www.bilibili.com/video/BV1kV411j7hA
 为什么要进行四次挥手
 
 1. 客户端从 establish 状态发送 fin 后进入 fin-wait-1 状态
-2. 服务端收到后响应 ack 并进入 close-wait 状态，检查是否有未发送的数据，当前客户端还可接收数据进入半双工状态，客户端进入 fin-wait-2 状态.
+2. 服务端收到后响应 ack 并进入 close-wait 状态，检查是否有未发送的数据，当前客户端还可接收数据进入半关闭状态，客户端进入 fin-wait-2 状态.
 3. 服务端确保无数据发送发送 fin 进入 last-ack 状态
 4. 客户端收到响应 ack 进入 time-wait 状态
 5. 服务端收到进入 close 状态，客户端超时等待结束进入 close 状态
