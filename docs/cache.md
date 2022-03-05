@@ -13,3 +13,21 @@
 
 - 网络代理。
 - CDN。
+
+## 强缓存
+
+强缓存：不用请求服务器，直接使用本地的缓存。 强缓存是利用 http 响应头中的 Expires 或 Cache-Control 实现的。 浏览器第一次请求一个资源时，服务器在返回该资源的同时，会把上面这两个属性放在 response header 中。
+
+- Expires：服务器返回的绝对时间 
+
+```
+Expires: Sun, 14 Jun 2020 02:50:57 GMT
+```
+- Cache-Control：服务器返回的相对时间。
+
+```
+Cache-Control: max-age=300
+```
+注意
+
+## 协商缓存
