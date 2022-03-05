@@ -28,12 +28,16 @@ https://github.com/mqyqingfeng/frontend-interview-question-and-answer/issues
 
 ## 事件系统
 
+DOM 级别
+
+
+
 事件冒泡：从内到外 1 2 3 
 事件捕获：从外到内 3 2 1
 
-DOM0 DOM1:事件冒泡到 window 为止
+- DOM0 DOM1:事件冒泡到 window 为止
 
-DOM2:新增绑定机制 addEventListener 第三个参数为 false 是为冒泡阶段，true 为捕获阶段
+- DOM2:新增绑定机制 addEventListener 第三个参数为 false 是为冒泡阶段，true 为捕获阶段
 
 ```
 btn.onclick = function(){}
@@ -42,11 +46,20 @@ btn.addEventListener('click',function(){},false)
 
 事件冒泡与事件委托
 
-target ：e.target 当前选中元素
+- target ：e.target 当前选中元素
 
-currentTarget e.currentTarget 当前事件绑定元素
+- currentTarget e.currentTarget 当前事件绑定元素
 
 通过给父级对象绑定事件，根据 target 来进行选中触发逻辑
+
+事件冒泡与取消冒泡机制
+
+除 focus | onBlur | scroll 三个事件其他事件均可以进行冒泡
+
+- e.bubbles 获取事件是否可以冒泡
+- e.stopPropagation() 阻止事件的冒泡和捕获
+- e.stopImmdiatePropagation() 阻止事件的冒泡和捕获以及其他的绑定事件
+- e.cancleBubble = true 可以兼容的取消冒泡
 
 ## 网络常见问题
 TCP/UDP HTTP1.0/2.0/3.0 HTTP/HTTPS
