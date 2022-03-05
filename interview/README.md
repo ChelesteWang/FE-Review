@@ -42,7 +42,8 @@ btn.addEventListener('click',function(){},false)
 
 事件冒泡与事件委托
 
-target 与 currentTarget
+target ：e.target 当前选中元素
+currentTarget e.currentTarget 当前事件绑定元素
 
 ## 网络常见问题
 TCP/UDP HTTP1.0/2.0/3.0 HTTP/HTTPS
